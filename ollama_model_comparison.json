@@ -1,0 +1,17 @@
+{
+  "mistral": {
+    "error": "'Message' object has no attribute 'strip'"
+  },
+  "codellama": {
+    "error": "'Message' object has no attribute 'strip'"
+  },
+  "gemma": {
+    "error": "model \"gemma\" not found, try pulling it first (status code: 404)"
+  },
+  "phi": {
+    "error": "'Message' object has no attribute 'strip'"
+  },
+  "llama2": {
+    "error": "'Message' object has no attribute 'strip'"
+  }
+}
