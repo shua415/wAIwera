@@ -1,4 +1,3 @@
-
 # Waiwera and JSON Files
 
 Waiwera takes its main input from a file in JSON format. JSON is a lightweight data-interchange format, designed to be easily human-readable and writable, as well as being easy for computers to generate and parse.
@@ -10,7 +9,6 @@ A file in JSON format is just a text file, so it can be read and edited using a 
 JSON syntax makes a lot of use of brackets and braces (see below), so another useful text-editor feature is bracket matching. This allows the user to identify matching pairs of brackets within the file – e.g. to find the closing bracket matching an opening bracket (and check that the closing bracket is not missing).
 
 There is also dedicated software designed specifically for editing JSON files, which can take care of much of the syntax for you. Examples include [JSON editor online](https://jsoneditoronline.org/).
-
 
 ## 5.2 JSON file structure
 
@@ -25,7 +23,6 @@ The data structures representable in JSON are defined in detail on the [JSON web
 The two main JSON data structures are:
 - **Array**
 - **Object**
-
 
 ### 5.3.1 JSON arrays
 
@@ -89,6 +86,23 @@ data["age"] = 3.5
 json.dump(data, open('edited.json', 'w'))
 
 
+## 5.6 JSON validation
+
+If you are editing a JSON file manually using a text editor, particularly if it contains complex nested data structures, it can be easy to make small syntactical mistakes, e.g., forgetting a closing bracket. JSON is not forgiving of such mistakes, so it is often wise to validate a JSON file before using it.
+
+There are software tools available to check if the contents of a file are valid JSON and point out any errors. There are JSON validation tools available inside some text editors, or as stand-alone tools, or as online tools such as [this one](https://jsonlint.com).
+
+## 5.7 Validation against a JSON schema
+
+The exact expected structure of a JSON file for a particular application (e.g., Waiwera input) can be defined using a JSON schema, a file (actually a JSON file itself) containing the data structure specification. As well as providing a technical specification for the data structures, the schema can be used to check if a particular JSON file has the required structure. Software tools (e.g., libraries, text editor plugins, or online validators like [this one](https://json-schema-validator.herokuapp.com)) are available for automatically validating a JSON file against the schema.
+
+Schema validation is useful for avoiding input errors, e.g., missing data, or data with mis-spelled keys that would otherwise be ignored or given default values. (Basic JSON syntax validation, as described above, should be done first as well.)
+
+The `utils/` directory of the Waiwera source code contains a schema file (`input_schema.json`) for Waiwera JSON input.
+
+> **Warning:** It is not a good idea to have duplicate keys in a JSON object (although the JSON specification does not explicitly disallow it). Different JSON software implementations handle duplicates differently, so you cannot rely on any particular duplicate (e.g., the last one in the file) being the one that will always be used. Some JSON validators (e.g., the one linked to above) will treat duplicate keys as invalid and produce warnings.
+
+
 ## 5.8 Waiwera JSON file structure
 
 All input data for a Waiwera simulation are contained within one object in the input JSON file. The various aspects of the simulation are specified by different named values within that object, as listed below. These values are of various types, and many are objects themselves, with their own internal structure.
@@ -112,261 +126,3 @@ All input data for a Waiwera simulation are contained within one object in the i
 | **time**        | object                    | time stepping                   |
 | **logfile**     | boolean \| object          | output log file                 |
 | **output**      | boolean \| object          | output results file             |
-
-
-## Example JSON files
-Example 1: 
-{
-  "title": "Deep Geothermal Reservoir Model",
-  "mesh": {
-    "filename": "deep_reservoir.msh",
-    "radial": false,
-    "thickness": 3000.0
-  },
-  "rock": {
-    "shallow_layer": {
-      "permeability": [1e-14, 1e-14, 1e-14],
-      "porosity": 0.12,
-      "zones": ["shallow"]
-    },
-    "deep_reservoir": {
-      "permeability": [5e-15, 5e-15, 5e-15],
-      "porosity": 0.10,
-      "zones": ["deep"]
-    }
-  },
-  "boundaries": [
-    {
-      "zone": "top",
-      "type": "dirichlet",
-      "values": {
-        "pressure": 1.2e5,
-        "temperature": 350.0
-      }
-    },
-    {
-      "zone": "bottom",
-      "type": "no-flow"
-    }
-  ],
-  "source": [
-    {
-      "name": "reinjection_well",
-      "component": "water",
-      "rate": 20,
-      "enthalpy": 1.2e5,
-      "cells": [150, 160, 170]
-    },
-    {
-      "name": "production_well",
-      "component": 0,
-      "rate": -25,
-      "cells": [300],
-      "separator": {
-        "pressure": 1e5,
-        "efficiency": 0.9
-      }
-    }
-  ],
-  "initial": {
-    "primary": [1e6, 600.0],
-    "region": 3
-  },
-  "gravity": [0, 0, -9.81],
-  "thermodynamics": {
-    "name": "iapws",
-    "extrapolate": true
-  },
-  "eos": {
-    "name": "wae",
-    "primary": {
-      "scale": {
-        "pressure": 1e5,
-        "temperature": 300.0
-      }
-    }
-  },
-  "time": {
-    "start": 0,
-    "stop": 5e7,
-    "step": {
-      "size": 43200,
-      "adapt": {
-        "on": true,
-        "method": "iteration",
-        "minimum": 4,
-        "maximum": 7,
-        "amplification": 1.7,
-        "reduction": 0.25
-      }
-    }
-  },
-  "logfile": {
-    "filename": "deep_model.log",
-    "format": {
-      "max_num_length": 12,
-      "num_real_digits": 8
-    },
-    "echo": true
-  },
-  "output": {
-    "filename": "deep_output.h5",
-    "initial": true,
-    "final": true,
-    "frequency": 5,
-    "flush": true,
-    "checkpoint": {
-      "time": [1e6, 1e7, 2e7]
-    },
-    "fields": {
-      "fluid": ["pressure", "temperature", "enthalpy"],
-      "source": ["all"]
-    }
-  }
-}
-
-
-Example 2: 
-
-{
-  "title": "Alternate Geothermal Model",
-  "mesh": {
-    "filename": "alternative_mesh.msh",
-    "radial": true,
-    "thickness": 50.0
-  },
-  "rock": {
-    "permeability": [5e-16, 5e-16, 5e-16],
-    "porosity": 0.15
-  },
-  "boundaries": [
-    {
-      "zone": "bottom",
-      "type": "neumann",
-      "values": {
-        "mass_flux": 0.001,
-        "heat_flux": 1000
-      }
-    }
-  ],
-  "source": [
-    {
-      "name": "injection_1",
-      "component": "water",
-      "rate": 5,
-      "enthalpy": 90000,
-      "cells": [100, 200] 
-    },
-    {
-      "name": "production_1",
-      "component": 0,
-      "rate": -8,
-      "cell": 350
-    }
-  ],
-  "initial": {
-    "primary": [8e5, 300.0],
-    "region": 1
-  },
-  "gravity": [0, 0, -9.81],
-  "thermodynamics": {
-    "name": "IFC67",
-    "extrapolate": false
-  },
-  "eos": {
-    "name": "wse",
-    "primary": {
-      "scale": {
-        "pressure": 1e5,
-        "temperature": 273.15
-      }
-    }
-  },
-  "time": {
-    "start": 0,
-    "stop": 1e7,
-    "step": {
-      "size": [3600, 86400],
-      "adapt": {
-        "on": true,
-        "method": "iteration",
-        "minimum": 3,
-        "maximum": 6,
-        "amplification": 1.5,
-        "reduction": 0.3
-      }
-    }
-  },
-  "logfile": {
-    "filename": "simulation.log",
-    "format": {
-      "max_num_length": 10,
-      "num_real_digits": 6
-    },
-    "echo": true
-  },
-  "output": {
-    "filename": "alternate_output.h5",
-    "initial": true,
-    "final": true,
-    "frequency": 10,
-    "flush": true,
-    "checkpoint": {
-      "time": [1e5, 5e5, 1e6]
-    },
-    "fields": {
-      "fluid": ["pressure", "temperature"],
-      "flux": ["all"]
-    }
-  }
-}
-
-
-Example 3: 
-{
-  "title": "Basic Geothermal Model",
-  "mesh": "mesh_file.msh",
-  "rock": {
-    "permeability": [1e-15, 1e-15, 1e-15],
-    "porosity": 0.1
-  },
-  "boundaries": [
-    {
-      "zone": "top",
-      "type": "dirichlet",
-      "values": {
-        "pressure": 1.01325e5,
-        "temperature": 298.15
-      }
-    }
-  ],
-  "source": [
-    {
-      "component": "water",
-      "rate": 10,
-      "enthalpy": 83900,
-      "cell": 245
-    }
-  ],
-  "initial": {
-    "primary": [1e6, 320.0]
-  },
-  "gravity": 9.81,
-  "thermodynamics": "iapws",
-  "eos": "we",
-  "time": {
-    "start": 0,
-    "stop": 3.15e7,
-    "step": {
-      "size": 86400
-    }
-  },
-  "logfile": true,
-  "output": {
-    "filename": "output.h5",
-    "initial": true,
-    "final": true
-  }
-}
-
-# Note: mesh file is a required input in all the JSON structures.
