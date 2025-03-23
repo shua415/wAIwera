@@ -4,9 +4,10 @@ import jsonschema
 import os
 
 # Configuration
-MODEL_NAME = "mistral"  # Change this if needed
+MODEL_NAME = "phi"  # Change this if needed
 CONTEXT_FILE = "Context.txt"
 SCHEMA_FILE = "input_schema.json"  # Extracted from the test script
+
 
 def load_context(file_path):
     """Load the markdown context from a .txt file."""
